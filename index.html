@@ -9,17 +9,32 @@
         .container { text-align: center; padding: 40px; background-color: white; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
         h1 { color: #333; }
         p { color: #666; }
+
+        /* --- 关键修改部分 --- */
+        /* 1. 禁用 "北京时间:" 文本的链接行为 */
+        #time_is_link {
+            color: #333; /* 设置文字颜色 */
+            text-decoration: none; /* 移除下划线 */
+            pointer-events: none; /* 禁用所有鼠标事件，使其不可点击 */
+            cursor: default; /* 鼠标悬停时显示默认箭头 */
+        }
+        
+        /* 2. 禁用由脚本动态生成的时间数字的链接行为 */
+        #Beijing_z43d a {
+            color: inherit !important; /* 继承父元素的颜色 */
+            text-decoration: none !important; /* 移除下划线 */
+            pointer-events: none !important; /* 禁用所有鼠标事件，使其不可点击 */
+            cursor: default !important; /* 鼠标悬停时显示默认箭头 */
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>❤️❤️Good❤️❤️</h1>
 
-        <!-- 修改后的时间组件代码 -->
-        <div style="font-size: 24px; color: #333;">
-            <span>北京时间: </span>
-            <span id="Beijing_z43d"></span>
-        </div>
+        <!-- 使用原始的HTML结构，但修改字体大小 -->
+        <a href="https://time.is/Beijing" id="time_is_link" rel="nofollow" style="font-size:24px">北京时间:</a>
+        <span id="Beijing_z43d" style="font-size:24px"></span>
         <script src="//widget.time.is/t.js"></script>
         <script>
         time_is_widget.init({Beijing_z43d:{}});
