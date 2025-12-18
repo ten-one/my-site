@@ -3,38 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>数字绿洲 | The Digital Oasis v2</title>
+    <title>数字绿洲 | Command Center</title>
     <style>
-        /* 1. 定义主题变量 */
         :root {
-            /* 默认暗黑模式变量 */
-            --bg-main: #0f172a;
-            --bg-gradient: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
-            --glass-bg: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.1);
+            --bg-main: #020617;
+            --bg-gradient: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
             --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
+            --text-secondary: #64748b;
             --accent-color: #38bdf8;
-            --card-shadow: rgba(0, 0, 0, 0.5);
         }
 
-        /* 2. 明亮模式变量 */
         [data-theme="light"] {
-            --bg-main: #f1f5f9;
-            --bg-gradient: radial-gradient(circle at center, #ffffff 0%, #e2e8f0 100%);
-            --glass-bg: rgba(255, 255, 255, 0.7);
-            --glass-border: rgba(15, 23, 42, 0.1);
+            --bg-main: #f8fafc;
+            --bg-gradient: radial-gradient(circle at center, #ffffff 0%, #f1f5f9 100%);
+            --glass-bg: rgba(15, 23, 42, 0.03);
+            --glass-border: rgba(15, 23, 42, 0.08);
             --text-primary: #0f172a;
-            --text-secondary: #475569;
-            --accent-color: #0284c7;
-            --card-shadow: rgba(0, 0, 0, 0.1);
+            --text-secondary: #94a3b8;
+            --accent-color: #0ea5e9;
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            transition: background-color 0.4s ease, color 0.4s ease; /* 让切换更顺滑 */
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         body {
@@ -45,157 +40,205 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            font-family: 'Segoe UI', system-ui, sans-serif;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace; /* 换成更有科技感的字体 */
             overflow: hidden;
         }
 
-        /* 主题切换按钮样式 */
-        .theme-toggle {
+        /* 顶部导航控制 */
+        .top-bar {
             position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 100;
+            top: 30px;
+            right: 30px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .icon-btn {
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
-            padding: 10px;
-            border-radius: 50%;
-            cursor: pointer;
             width: 45px;
             height: 45px;
+            border-radius: 12px;
+            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            backdrop-filter: blur(5px);
-            font-size: 1.2rem;
+            backdrop-filter: blur(10px);
+            color: var(--text-primary);
         }
 
+        /* 主容器 */
         .container {
             position: relative;
             z-index: 1;
             width: 90%;
-            max-width: 600px;
-            padding: 40px;
+            max-width: 500px;
+            padding: 50px 40px;
             background: var(--glass-bg);
-            backdrop-filter: blur(12px);
+            backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            box-shadow: 0 25px 50px -12px var(--card-shadow);
+            border-radius: 32px;
+            box-shadow: 0 40px 100px -20px rgba(0,0,0,0.5);
             text-align: center;
         }
 
-        h1 {
-            font-size: 2.2rem;
-            margin-bottom: 10px;
-            background: linear-gradient(90deg, var(--accent-color), #818cf8);
+        /* 动态时钟 */
+        .clock-display {
+            font-size: 4.5rem;
+            font-weight: 700;
+            letter-spacing: -2px;
+            margin-bottom: 5px;
+            font-variant-numeric: tabular-nums; /* 防止数字跳动 */
+            background: linear-gradient(180deg, var(--text-primary) 30%, var(--accent-color));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        .subtitle { color: var(--text-secondary); margin-bottom: 30px; }
-
-        .inspiration-box {
-            background: rgba(0, 0, 0, 0.05);
-            padding: 20px;
-            border-radius: 16px;
-            border-left: 4px solid var(--accent-color);
+        .date-display {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 40px;
         }
 
-        /* 鼠标光晕在明亮模式下调低透明度 */
+        /* 系统状态栏 (替换掉灵感盒子) */
+        .status-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            text-align: left;
+        }
+
+        .status-item {
+            background: rgba(255, 255, 255, 0.02);
+            padding: 15px;
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .status-label {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .status-value {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        /* 呼吸灯效果 */
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #22c55e;
+            border-radius: 50%;
+            margin-right: 8px;
+            box-shadow: 0 0 10px #22c55e;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.4; }
+            100% { opacity: 1; }
+        }
+
+        /* 背景装饰 */
         .cursor-glow {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none;
-            background: radial-gradient(circle 300px at var(--x, 50%) var(--y, 50%), var(--accent-color), transparent);
-            opacity: 0.15;
+            background: radial-gradient(circle 400px at var(--x, 50%) var(--y, 50%), var(--accent-color), transparent);
+            opacity: 0.1;
             z-index: 0;
-        }
-
-        .btn {
-            margin-top: 30px;
-            padding: 12px 24px;
-            background: var(--accent-color);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-weight: bold;
-            cursor: pointer;
         }
     </style>
 </head>
 <body data-theme="dark">
 
-    <button class="theme-toggle" id="themeBtn" title="切换主题">🌓</button>
+    <div class="top-bar">
+        <button class="icon-btn" id="themeBtn">🌙</button>
+    </div>
 
     <div class="cursor-glow" id="glow"></div>
     
     <div class="container">
-        <h1>数字绿洲</h1>
-        <p class="subtitle" id="themeStatus">当前模式：自动跟随系统</p>
+        <div class="clock-display" id="clock">00:00:00</div>
+        <div class="date-display" id="date">LOADING DATA...</div>
         
-        <div class="inspiration-box">
-            <p id="quote">正在加载灵感...</p>
+        <div class="status-grid">
+            <div class="status-item">
+                <span class="status-label">SYSTEM STATUS</span>
+                <span class="status-value"><span class="status-dot"></span>OPERATIONAL</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">ENVIRONMENT</span>
+                <span class="status-value" id="envTag">SECURE OASIS</span>
+            </div>
+            <div class="status-item" style="grid-column: span 2;">
+                <span class="status-label">UPTIME</span>
+                <span class="status-value" id="uptime">00:00:00:00</span>
+            </div>
         </div>
-
-        <button class="btn" onclick="generateQuote()">刷新灵感</button>
     </div>
 
     <script>
+        // 1. 极简主题切换逻辑 (删除了文字提示)
         const themeBtn = document.getElementById('themeBtn');
-        const themeStatus = document.getElementById('themeStatus');
         const body = document.body;
 
-        // 1. 获取系统主题偏好
-        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)');
-
-        // 2. 初始化主题逻辑
-        function initTheme() {
-            const savedTheme = localStorage.getItem('user-theme');
-            if (savedTheme) {
-                applyTheme(savedTheme);
-            } else {
-                // 如果用户没选过，则跟随系统
-                applyTheme(systemPrefersDark.matches ? 'dark' : 'light');
-                themeStatus.innerText = "当前模式：跟随系统";
-            }
-        }
-
-        // 3. 应用主题
-        function applyTheme(theme) {
+        const applyTheme = (theme) => {
             body.setAttribute('data-theme', theme);
             themeBtn.innerText = (theme === 'dark' ? '🌙' : '☀️');
+            localStorage.setItem('user-theme', theme);
+        };
+
+        themeBtn.addEventListener('click', () => {
+            const newTheme = body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            applyTheme(newTheme);
+        });
+
+        // 跟随系统
+        if (!localStorage.getItem('user-theme') && window.matchMedia('(prefers-color-scheme: light)').matches) {
+            applyTheme('light');
+        } else if (localStorage.getItem('user-theme')) {
+            applyTheme(localStorage.getItem('user-theme'));
         }
 
-        // 4. 手动切换事件
-        themeBtn.addEventListener('click', () => {
-            let currentTheme = body.getAttribute('data-theme');
-            let newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        // 2. 动态时钟与运行时间逻辑
+        const startTime = Date.now();
+
+        function updateDashboard() {
+            const now = new Date();
             
-            applyTheme(newTheme);
-            localStorage.setItem('user-theme', newTheme); // 持久化保存
-            themeStatus.innerText = `当前模式：手动${newTheme === 'dark' ? '暗黑' : '明亮'}`;
-        });
+            // 更新时钟
+            document.getElementById('clock').innerText = now.toLocaleTimeString('en-GB', { hour12: false });
+            
+            // 更新日期
+            const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' };
+            document.getElementById('date').innerText = now.toLocaleDateString('zh-CN', options);
 
-        // 5. 监听系统主题变化（如果用户没有手动设置过）
-        systemPrefersDark.addEventListener('change', (e) => {
-            if (!localStorage.getItem('user-theme')) {
-                applyTheme(e.matches ? 'dark' : 'light');
-            }
-        });
+            // 更新运行时间 (Uptime)
+            const diff = Date.now() - startTime;
+            const h = Math.floor(diff / 3600000).toString().padStart(2, '0');
+            const m = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
+            const s = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
+            const ms = Math.floor((diff % 1000) / 10).toString().padStart(2, '0');
+            document.getElementById('uptime').innerText = `${h}:${m}:${s}:${ms}`;
+        }
 
-        // 之前的光晕和灵感代码...
+        setInterval(updateDashboard, 10);
+
+        // 3. 鼠标交互
         const glow = document.getElementById('glow');
         window.addEventListener('mousemove', (e) => {
             glow.style.setProperty('--x', e.clientX + 'px');
             glow.style.setProperty('--y', e.clientY + 'px');
         });
-
-        const quotes = ["代码是诗意的表达。", "保持好奇心。", "宁静致远。"];
-        function generateQuote() {
-            document.getElementById('quote').innerText = quotes[Math.floor(Math.random() * quotes.length)];
-        }
-
-        initTheme();
-        generateQuote();
     </script>
 </body>
 </html>
