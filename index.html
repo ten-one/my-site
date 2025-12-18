@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>数字绿洲 | Ultimate Stable</title>
+    <title>数字绿洲</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@800&display=swap" rel="stylesheet">
@@ -82,11 +82,12 @@
         }
 
         /* 冒号的笼子 */
-        .colon {
+            .colon {
             width: 0.4em;
             text-align: center;
-            opacity: 0.6;
-            animation: blink 2s infinite; /* 优雅的呼吸效果 */
+            color: inherit; /* 强制继承父元素颜色 */
+            opacity: 1;     /* 强制不透明 */
+            padding-bottom: 0.1em; /* 微调垂直对齐 */
         }
 
         @keyframes blink {
@@ -211,3 +212,4 @@
     </script>
 </body>
 </html>
+
