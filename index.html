@@ -3,54 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>数字绿洲</title>
+    <title>数字绿洲 | Obsidian</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@800&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --bg-main: #050505;
-            --bg-gradient: radial-gradient(circle at center, #1a1a1a 0%, #050505 100%);
-            --text-primary: #ffffff;
-            --text-secondary: rgba(255, 255, 255, 0.4);
+            /* 核心修改：高级感黑曜石背景 */
+            /* 不再是纯黑，而是带有极微弱蓝调的深灰，更有质感 */
+            --bg-base: #020617; 
+            --bg-gradient: radial-gradient(ellipse at bottom, #1e293b 0%, #020617 100%);
+            
+            --text-primary: #f1f5f9; /* 稍微降低一点白度，不刺眼 */
+            --text-secondary: #64748b; /* 蓝灰色文字，与背景融合 */
+            --separator-color: #334155;
         }
 
         [data-theme="light"] {
-            --bg-main: #ffffff;
-            --bg-gradient: radial-gradient(circle at center, #f0f2f5 0%, #ffffff 100%);
-            --text-primary: #000000;
-            --text-secondary: rgba(0, 0, 0, 0.4);
+            /* 明亮模式：高级灰白 */
+            --bg-base: #f8fafc;
+            --bg-gradient: radial-gradient(circle at center, #ffffff 0%, #e2e8f0 100%);
+            --text-primary: #0f172a;
+            --text-secondary: #94a3b8;
+            --separator-color: #cbd5e1;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            background: var(--bg-main);
-            background: var(--bg-gradient);
+            background-color: var(--bg-base);
+            background-image: var(--bg-gradient);
             color: var(--text-primary);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            /* 应用新字体 */
             font-family: 'JetBrains Mono', monospace; 
             overflow: hidden;
-            transition: background 0.6s ease, color 0.6s ease;
+            transition: background 0.8s ease, color 0.8s ease; /* 更慢的过渡，更优雅 */
         }
 
         /* 顶部按钮 */
-        .top-bar {
-            position: fixed;
-            top: 40px; right: 40px; z-index: 100;
-        }
+        .top-bar { position: fixed; top: 40px; right: 40px; z-index: 100; }
         .icon-btn {
-            background: none; border: none; font-size: 0.9rem; font-weight: 800;
-            cursor: pointer; color: var(--text-primary); opacity: 0.3;
-            transition: opacity 0.3s; text-transform: uppercase; letter-spacing: 2px;
+            background: none; border: none; font-size: 0.8rem; font-weight: 800;
+            cursor: pointer; color: var(--text-secondary); opacity: 0.5;
+            transition: all 0.3s; text-transform: uppercase; letter-spacing: 2px;
             font-family: 'JetBrains Mono', monospace; 
         }
-        .icon-btn:hover { opacity: 1; }
+        .icon-btn:hover { opacity: 1; color: var(--text-primary); }
 
         /* 容器 */
         .container {
@@ -61,65 +63,75 @@
             position: relative;
         }
 
-        /* --- 核心防抖布局 --- */
+        /* --- 1. 稳固的时间布局 --- */
         .clock-wrapper {
-            display: flex; /* 使用 Flex 布局排列数字 */
+            display: flex;
             justify-content: center;
             align-items: center;
-            font-size: clamp(3rem, 11vw, 8rem); /* 响应式大小 */
-            font-weight: 800; /* 特粗 */
+            font-size: clamp(3rem, 11vw, 8.5rem);
+            font-weight: 800;
             line-height: 1;
-            margin-bottom: 25px;
-            /* 关键：防止字符间距微小变化 */
-            font-variant-numeric: tabular-nums; 
+            margin-bottom: 40px; /* 增加与日期的距离，更舒展 */
+            font-variant-numeric: tabular-nums;
+            text-shadow: 0 10px 30px rgba(0,0,0,0.2); /* 增加一点点悬浮阴影 */
         }
 
-        /* 给时分秒每个单元一个固定的“笼子” */
         .time-unit {
-            width: 1.4em; /* 强制宽度：容纳两个数字 */
-            text-align: center; /* 数字在笼子里居中 */
+            width: 1.4em;
+            text-align: center;
             display: inline-block;
         }
 
-        /* 冒号的笼子 */
+        /* 修改：移除了呼吸动画，稍微调低透明度作为区分 */
         .colon {
             width: 0.4em;
             text-align: center;
-            opacity: 0.6;
-            animation: blink 2s infinite; /* 优雅的呼吸效果 */
+            opacity: 0.4; 
+            padding-bottom: 10px; /* 视觉微调对齐 */
         }
 
-        @keyframes blink {
-            0%, 100% { opacity: 0.6; }
-            50% { opacity: 0.2; }
-        }
-
-        .date-display {
+        /* --- 2. 宽阔的日期布局 --- */
+        .date-container {
+            display: flex;
+            align-items: center;
+            gap: 2rem; /* 核心修改：拉开日期和星期的间距 */
             font-size: 0.9rem;
-            font-weight: 600;
-            letter-spacing: 0.4em;
+            font-weight: 700;
+            letter-spacing: 0.1em;
             text-transform: uppercase;
             color: var(--text-secondary);
         }
 
-        /* 图标雨样式 */
+        /* 中间的分隔符 */
+        .date-separator {
+            width: 1px;
+            height: 1.2em;
+            background-color: var(--separator-color);
+            transform: rotate(15deg); /* 稍微倾斜，增加设计感 */
+        }
+
+        /* 图标雨 */
         .rain-icon {
             position: fixed; top: -50px; pointer-events: none; user-select: none;
             z-index: 1; will-change: transform;
             animation-name: fall; animation-timing-function: linear;
+            /* 给图标加一点点混合模式，让它融入背景更舒服 */
+            mix-blend-mode: overlay; 
         }
+
+        [data-theme="light"] .rain-icon { mix-blend-mode: multiply; } /* 明亮模式下的混合 */
 
         @keyframes fall {
             0% { transform: translateY(0) rotate(0deg); opacity: 0; }
-            10% { opacity: 1; }
-            100% { transform: translateY(110vh) rotate(360deg); opacity: 0.2; }
+            10% { opacity: 0.8; }
+            100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
         }
     </style>
 </head>
 <body data-theme="dark">
 
     <div class="top-bar">
-        <button class="icon-btn" id="themeBtn">DARK</button>
+        <button class="icon-btn" id="themeBtn">SWITCH MODE</button>
     </div>
     
     <div class="container">
@@ -130,23 +142,24 @@
             <span class="colon">:</span>
             <span class="time-unit" id="s">00</span>
         </div>
-        <div class="date-display" id="date">LOADING...</div>
+        
+        <div class="date-container">
+            <span id="date-part">LOADING</span>
+            <div class="date-separator"></div>
+            <span id="weekday-part">...</span>
+        </div>
     </div>
 
     <script>
-        // --- 1. 扩充后的海量 Emoji 库 ---
-        // 直接使用了你提供的列表，并转换为了数组
+        // --- 1. Emoji 库 ---
         const rawIconString = "'💾', '💿', '🖥️', '🖱️', '⌨️', '📱', '📡', '☁️', '⚡', '❄️', '💧', '🌊', '🌙', '⭐', '🚀', '🛸', '👾', '🎮', '🎵', '☕','😀','😃','😄','😁','😆','😅','😂','🤣','🥲','☺️','😊','😇','🙂','🤪','🤨','🧐','😎','🥸','🤩','🥳','😏','😒','😞','😟','😕','🙁','☹️','😣','😖','😫','😩','🥺','😢','😭','😤','😠','😡','🤬','🤯','😳','🥵','🥶','😱','😨','😓','🤗','🥱','😴','🤤','😪','🥴','🤢','🤮','🤧','😷','🤒','🤕','🤑','🤠','😈','👹','👺','🤡','💩','👻','💀','☠️','👽','👾','🤖','🎃','😺','😸','😿','😾','🖖','👌','🤌','🤞','🫰','🤟','🤘','🤙','👈','👉','👆','🤛','🤜','👃','🧠','🫀','🫁','🦷','🦴','🧑‍🎓','🧑‍🔧','🧑‍🔬','🧑‍🎨','🧑‍🚒','🧑‍✈️','🧑‍🚀','🥷','🦸','🦹','🎅','🤶','🧙','🧚','🧛','🧜','🧝','🧞','🧟','🫂','💆','💇','🚶','🏃','💃','🕺','👯','🧖','🧗','🤺','🏇','⛷️','🏂','🏌️','🏄','🚣','🏊','⛹️','🤾','🦓','🦌','🦬','🐮','','🦇','🐻','🐨','🐼','🦥','🦦','🦨','🦘','🦡','🐾','🦃','🐔','🐓','🐣','🐤','🐥','🐦','🐧','🕊️','🦅','🦆','🦢','🦉','🦤','🪶','🦩','🦚','🦜','🐢','🐍','🐙','🦑','🦐','🦞','🦀','🐡','🐠','🐟','🐬','🍇','🍈','🍉','🥭','🍎','🍏','🍐','🍑','🍒','🍓','🫐',' 🍅','🍔','🍟','🍕','🌭','🥪','🌮',' 🫔','🥙','🧆','🥚','🍳','🥘','🍯','🍼','🥛','☕','🫖','🍵','🍶','🍾','🍷','🍸','🧊','🥢','🍽️','🌎','🌐','🗺️','🗾','🏣','🏥','🏦','🏫','🗼','🗽'";
-        
-        // 简单清洗数据：去掉单引号、逗号和空格，提取纯 Emoji
         const iconSet = rawIconString.replace(/'/g, '').split(/[, ]+/).filter(i => i.length > 0);
 
-        // --- 2. 主题切换逻辑 ---
+        // --- 2. 主题逻辑 ---
         const themeBtn = document.getElementById('themeBtn');
         const body = document.body;
         const applyTheme = (theme) => {
             body.setAttribute('data-theme', theme);
-            themeBtn.innerText = theme.toUpperCase();
             localStorage.setItem('user-theme', theme);
         };
         themeBtn.addEventListener('click', () => {
@@ -159,53 +172,49 @@
             applyTheme(localStorage.getItem('user-theme'));
         }
 
-        // --- 3. 稳如泰山的时钟逻辑 ---
+        // --- 3. 时钟逻辑 ---
         function updateClock() {
             const now = new Date();
             const h = now.getHours().toString().padStart(2, '0');
             const m = now.getMinutes().toString().padStart(2, '0');
             const s = now.getSeconds().toString().padStart(2, '0');
             
-            // 分别更新三个独立的盒子，确保没有任何宽度挤压
             document.getElementById('h').innerText = h;
             document.getElementById('m').innerText = m;
             document.getElementById('s').innerText = s;
             
-            const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
-            document.getElementById('date').innerText = now.toLocaleDateString('zh-CN', options);
+            // 分离日期和星期
+            const dateStr = now.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
+            const weekStr = now.toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase(); // 英文星期看起来更配这个字体
+            
+            document.getElementById('date-part').innerText = dateStr;
+            document.getElementById('weekday-part').innerText = weekStr;
         }
         setInterval(updateClock, 1000);
         updateClock();
 
-        // --- 4. 图标雨逻辑 ---
+        // --- 4. 优化后的雨滴 ---
         function createRainDrop() {
             const icon = document.createElement('div');
             icon.classList.add('rain-icon');
-            
-            // 从巨大的库中随机取一个
             icon.innerText = iconSet[Math.floor(Math.random() * iconSet.length)];
             
             const left = Math.random() * 100 + 'vw';
-            const size = Math.random() * 1.5 + 1 + 'rem';
-            const duration = Math.random() * 5 + 4 + 's';
-            const delay = Math.random() * 2 + 's';
+            const size = Math.random() * 2 + 1 + 'rem'; // 稍微调大一点
+            const duration = Math.random() * 6 + 5 + 's'; // 稍微慢一点，更优雅
             
             icon.style.left = left;
             icon.style.fontSize = size;
             icon.style.animationDuration = duration;
-            icon.style.animationDelay = delay;
-            icon.style.opacity = Math.random() * 0.4 + 0.2;
+            icon.style.opacity = Math.random() * 0.3 + 0.1; // 透明度调低，不抢视觉重心
             
-            if (Math.random() > 0.8) icon.style.filter = `blur(${Math.random() * 2}px)`;
+            if (Math.random() > 0.5) icon.style.filter = `blur(${Math.random() * 4}px)`; // 更多模糊，营造景深
             
             document.body.appendChild(icon);
             icon.addEventListener('animationend', () => icon.remove());
         }
         
-        // 生成频率（越小雨越大）
         setInterval(createRainDrop, 200);
-        
-        // 初始化先生成一些
         for(let i=0; i<15; i++) createRainDrop();
 
     </script>
