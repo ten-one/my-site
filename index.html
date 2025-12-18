@@ -3,33 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>数字绿洲 | Command Center</title>
+    <title>数字绿洲 | Icon Rain</title>
     <style>
         :root {
-            --bg-main: #020617;
-            --bg-gradient: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
-            --glass-bg: rgba(255, 255, 255, 0.03);
-            --glass-border: rgba(255, 255, 255, 0.08);
-            --text-primary: #f8fafc;
-            --text-secondary: #64748b;
-            --accent-color: #38bdf8;
+            --bg-main: #050505;
+            --bg-gradient: radial-gradient(circle at center, #1a1a1a 0%, #050505 100%);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.4);
         }
 
         [data-theme="light"] {
-            --bg-main: #f8fafc;
-            --bg-gradient: radial-gradient(circle at center, #ffffff 0%, #f1f5f9 100%);
-            --glass-bg: rgba(15, 23, 42, 0.03);
-            --glass-border: rgba(15, 23, 42, 0.08);
-            --text-primary: #0f172a;
-            --text-secondary: #94a3b8;
-            --accent-color: #0ea5e9;
+            --bg-main: #ffffff;
+            --bg-gradient: radial-gradient(circle at center, #f0f2f5 0%, #ffffff 100%);
+            --text-primary: #000000;
+            --text-secondary: rgba(0, 0, 0, 0.4);
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         body {
@@ -40,205 +33,184 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            font-family: 'JetBrains Mono', 'Fira Code', monospace; /* 换成更有科技感的字体 */
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             overflow: hidden;
+            transition: background 0.6s ease, color 0.6s ease;
         }
 
-        /* 顶部导航控制 */
+        /* 极简切换按钮 */
         .top-bar {
             position: fixed;
-            top: 30px;
-            right: 30px;
-            display: flex;
-            gap: 15px;
+            top: 40px;
+            right: 40px;
+            z-index: 100;
         }
 
         .icon-btn {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            width: 45px;
-            height: 45px;
-            border-radius: 12px;
+            background: none;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(10px);
             color: var(--text-primary);
+            opacity: 0.3;
+            transition: opacity 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
-        /* 主容器 */
+        .icon-btn:hover { opacity: 1; }
+
+        /* 中心时钟容器 */
         .container {
-            position: relative;
-            z-index: 1;
-            width: 90%;
-            max-width: 500px;
-            padding: 50px 40px;
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 32px;
-            box-shadow: 0 40px 100px -20px rgba(0,0,0,0.5);
             text-align: center;
+            user-select: none;
+            z-index: 10; /* 确保时钟在雨水前面 */
+            position: relative;
         }
 
-        /* 动态时钟 */
         .clock-display {
-            font-size: 4.5rem;
-            font-weight: 700;
-            letter-spacing: -2px;
-            margin-bottom: 5px;
-            font-variant-numeric: tabular-nums; /* 防止数字跳动 */
-            background: linear-gradient(180deg, var(--text-primary) 30%, var(--accent-color));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-size: clamp(5rem, 15vw, 10rem);
+            font-weight: 200;
+            letter-spacing: -0.05em;
+            line-height: 1;
+            margin-bottom: 20px;
+            font-variant-numeric: tabular-nums;
         }
 
         .date-display {
-            color: var(--text-secondary);
-            font-size: 1rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 40px;
-        }
-
-        /* 系统状态栏 (替换掉灵感盒子) */
-        .status-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            text-align: left;
-        }
-
-        .status-item {
-            background: rgba(255, 255, 255, 0.02);
-            padding: 15px;
-            border-radius: 16px;
-            border: 1px solid var(--glass-border);
-        }
-
-        .status-label {
-            font-size: 0.7rem;
-            color: var(--text-secondary);
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .status-value {
             font-size: 0.9rem;
-            font-weight: 600;
+            font-weight: 400;
+            letter-spacing: 0.4em;
+            text-transform: uppercase;
+            color: var(--text-secondary);
         }
 
-        /* 呼吸灯效果 */
-        .status-dot {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            background: #22c55e;
-            border-radius: 50%;
-            margin-right: 8px;
-            box-shadow: 0 0 10px #22c55e;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.4; }
-            100% { opacity: 1; }
-        }
-
-        /* 背景装饰 */
-        .cursor-glow {
+        /* --- 图标雨样式 --- */
+        .rain-icon {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none;
-            background: radial-gradient(circle 400px at var(--x, 50%) var(--y, 50%), var(--accent-color), transparent);
-            opacity: 0.1;
-            z-index: 0;
+            top: -50px; /* 从屏幕上方开始 */
+            pointer-events: none; /* 防止鼠标交互 */
+            user-select: none;
+            z-index: 1; /* 在背景之上，时钟之下 */
+            will-change: transform; /* 性能优化 */
+            animation-name: fall;
+            animation-timing-function: linear;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(110vh) rotate(360deg); /* 下落到屏幕下方并旋转 */
+                opacity: 0.2;
+            }
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 600px) {
+            .date-display { letter-spacing: 0.2em; font-size: 0.7rem; }
         }
     </style>
 </head>
 <body data-theme="dark">
 
     <div class="top-bar">
-        <button class="icon-btn" id="themeBtn">🌙</button>
+        <button class="icon-btn" id="themeBtn">DARK</button>
     </div>
-
-    <div class="cursor-glow" id="glow"></div>
     
     <div class="container">
-        <div class="clock-display" id="clock">00:00:00</div>
-        <div class="date-display" id="date">LOADING DATA...</div>
-        
-        <div class="status-grid">
-            <div class="status-item">
-                <span class="status-label">SYSTEM STATUS</span>
-                <span class="status-value"><span class="status-dot"></span>OPERATIONAL</span>
-            </div>
-            <div class="status-item">
-                <span class="status-label">ENVIRONMENT</span>
-                <span class="status-value" id="envTag">SECURE OASIS</span>
-            </div>
-            <div class="status-item" style="grid-column: span 2;">
-                <span class="status-label">UPTIME</span>
-                <span class="status-value" id="uptime">00:00:00:00</span>
-            </div>
-        </div>
+        <div class="clock-display" id="clock">00:00</div>
+        <div class="date-display" id="date">LOADING...</div>
     </div>
 
     <script>
-        // 1. 极简主题切换逻辑 (删除了文字提示)
+        // --- 主题逻辑 ---
         const themeBtn = document.getElementById('themeBtn');
         const body = document.body;
-
         const applyTheme = (theme) => {
             body.setAttribute('data-theme', theme);
-            themeBtn.innerText = (theme === 'dark' ? '🌙' : '☀️');
+            themeBtn.innerText = theme.toUpperCase();
             localStorage.setItem('user-theme', theme);
         };
-
         themeBtn.addEventListener('click', () => {
             const newTheme = body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
             applyTheme(newTheme);
         });
-
-        // 跟随系统
         if (!localStorage.getItem('user-theme') && window.matchMedia('(prefers-color-scheme: light)').matches) {
             applyTheme('light');
         } else if (localStorage.getItem('user-theme')) {
             applyTheme(localStorage.getItem('user-theme'));
         }
 
-        // 2. 动态时钟与运行时间逻辑
-        const startTime = Date.now();
-
-        function updateDashboard() {
+        // --- 时钟逻辑 ---
+        function updateClock() {
             const now = new Date();
-            
-            // 更新时钟
-            document.getElementById('clock').innerText = now.toLocaleTimeString('en-GB', { hour12: false });
-            
-            // 更新日期
-            const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' };
+            const h = now.getHours().toString().padStart(2, '0');
+            const m = now.getMinutes().toString().padStart(2, '0');
+            const s = now.getSeconds().toString().padStart(2, '0');
+            document.getElementById('clock').innerHTML = `${h}:${m}<span style="font-size: 0.4em; opacity: 0.5; margin-left: 10px;">${s}</span>`;
+            const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
             document.getElementById('date').innerText = now.toLocaleDateString('zh-CN', options);
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
 
-            // 更新运行时间 (Uptime)
-            const diff = Date.now() - startTime;
-            const h = Math.floor(diff / 3600000).toString().padStart(2, '0');
-            const m = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
-            const s = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
-            const ms = Math.floor((diff % 1000) / 10).toString().padStart(2, '0');
-            document.getElementById('uptime').innerText = `${h}:${m}:${s}:${ms}`;
+        // --- 图标雨核心逻辑 ---
+        
+        // 1. 定义雨滴素材库 (可以随意添加你喜欢的 Emoji)
+        const iconSet = [
+            '💾', '💿', '🖥️', '🖱️', '⌨️', '📱', '📡', // Tech
+            '☁️', '⚡', '❄️', '💧', '🌊', '🌙', '⭐', // Weather/Nature
+            '🚀', '🛸', '👾', '🎮', '🎲', '🧩',       // Space/Games
+            '🎵', '🎹', '🎨', '📚', '☕', '🍔'        // Misc
+        ];
+
+        function createRainDrop() {
+            const icon = document.createElement('div');
+            icon.classList.add('rain-icon');
+            
+            // 随机选择一个图标
+            icon.innerText = iconSet[Math.floor(Math.random() * iconSet.length)];
+
+            // 随机生成属性
+            const left = Math.random() * 100 + 'vw'; // 水平位置
+            const size = Math.random() * 2 + 1 + 'rem'; // 大小 (1rem 到 3rem)
+            const duration = Math.random() * 5 + 3 + 's'; // 下落时间 (3s 到 8s)
+            const delay = Math.random() * 2 + 's'; // 随机延迟开始
+            const opacity = Math.random() * 0.5 + 0.3; // 透明度 (0.3 到 0.8)
+
+            // 应用样式
+            icon.style.left = left;
+            icon.style.fontSize = size;
+            icon.style.animationDuration = duration;
+            icon.style.animationDelay = delay;
+            icon.style.opacity = opacity;
+            // 随机一点模糊感，增加景深
+            if (Math.random() > 0.7) {
+                 icon.style.filter = `blur(${Math.random() * 3}px)`;
+            }
+
+            document.body.appendChild(icon);
+
+            // 重要：动画结束后移除元素，防止内存泄漏
+            icon.addEventListener('animationend', () => {
+                icon.remove();
+            });
         }
 
-        setInterval(updateDashboard, 10);
+        // 每隔一定时间生成一个新雨滴
+        // 调整这个数字可以改变雨的大小 (例如 300ms 一滴，或者 100ms 一滴)
+        setInterval(createRainDrop, 200);
 
-        // 3. 鼠标交互
-        const glow = document.getElementById('glow');
-        window.addEventListener('mousemove', (e) => {
-            glow.style.setProperty('--x', e.clientX + 'px');
-            glow.style.setProperty('--y', e.clientY + 'px');
-        });
+        // 初始化先生成几个
+        for(let i=0; i<10; i++) createRainDrop();
+
     </script>
 </body>
 </html>
