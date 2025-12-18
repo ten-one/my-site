@@ -3,20 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>数字绿洲</title>
+    <title>数字绿洲 | Ultimate Stable</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@800&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            /* 1. 背景改回 v7 版本的纯粹深色系 */
             --bg-main: #050505;
             --bg-gradient: radial-gradient(circle at center, #1a1a1a 0%, #050505 100%);
-            
             --text-primary: #ffffff;
             --text-secondary: rgba(255, 255, 255, 0.4);
-            --separator-color: #333;
         }
 
         [data-theme="light"] {
@@ -24,7 +21,6 @@
             --bg-gradient: radial-gradient(circle at center, #f0f2f5 0%, #ffffff 100%);
             --text-primary: #000000;
             --text-secondary: rgba(0, 0, 0, 0.4);
-            --separator-color: #ddd;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -37,12 +33,17 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            /* 应用新字体 */
             font-family: 'JetBrains Mono', monospace; 
             overflow: hidden;
             transition: background 0.6s ease, color 0.6s ease;
         }
 
-        .top-bar { position: fixed; top: 40px; right: 40px; z-index: 100; }
+        /* 顶部按钮 */
+        .top-bar {
+            position: fixed;
+            top: 40px; right: 40px; z-index: 100;
+        }
         .icon-btn {
             background: none; border: none; font-size: 0.9rem; font-weight: 800;
             cursor: pointer; color: var(--text-primary); opacity: 0.3;
@@ -51,6 +52,7 @@
         }
         .icon-btn:hover { opacity: 1; }
 
+        /* 容器 */
         .container {
             display: flex;
             flex-direction: column;
@@ -59,67 +61,58 @@
             position: relative;
         }
 
-        /* --- 时间布局 --- */
+        /* --- 核心防抖布局 --- */
         .clock-wrapper {
-            display: flex;
+            display: flex; /* 使用 Flex 布局排列数字 */
             justify-content: center;
             align-items: center;
-            font-size: clamp(3rem, 11vw, 8rem);
-            font-weight: 800;
+            font-size: clamp(3rem, 11vw, 8rem); /* 响应式大小 */
+            font-weight: 800; /* 特粗 */
             line-height: 1;
-            margin-bottom: 30px;
-            font-variant-numeric: tabular-nums;
+            margin-bottom: 25px;
+            /* 关键：防止字符间距微小变化 */
+            font-variant-numeric: tabular-nums; 
         }
 
+        /* 给时分秒每个单元一个固定的“笼子” */
         .time-unit {
-            width: 1.4em;
-            text-align: center;
+            width: 1.4em; /* 强制宽度：容纳两个数字 */
+            text-align: center; /* 数字在笼子里居中 */
             display: inline-block;
         }
 
-        /* 3. 冒号优化：颜色完全一致，去除任何透明度差异 */
+        /* 冒号的笼子 */
         .colon {
             width: 0.4em;
             text-align: center;
-            color: inherit; /* 强制继承父元素颜色 */
-            opacity: 1;     /* 强制不透明 */
-            padding-bottom: 0.1em; /* 微调垂直对齐 */
+            opacity: 0.6;
+            animation: blink 2s infinite; /* 优雅的呼吸效果 */
         }
 
-        /* --- 日期布局 --- */
-        .date-container {
-            display: flex;
-            align-items: center;
-            gap: 1.5rem; 
-            font-size: 1rem; /* 稍微调大一点，更清晰 */
-            font-weight: 700;
-            letter-spacing: 0.1em;
+        @keyframes blink {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 0.2; }
+        }
+
+        .date-display {
+            font-size: 0.9rem;
+            font-weight: 600;
+            letter-spacing: 0.4em;
             text-transform: uppercase;
             color: var(--text-secondary);
         }
 
-        /* 2. 斜线分隔符 */
-        .date-separator {
-            width: 2px;
-            height: 1em;
-            background-color: var(--separator-color);
-            transform: skew(-15deg);
-        }
-
-        /* --- 图标雨优化 --- */
+        /* 图标雨样式 */
         .rain-icon {
             position: fixed; top: -50px; pointer-events: none; user-select: none;
-            z-index: 1; 
-            will-change: transform, opacity; /* 4. 性能优化：提示浏览器 */
+            z-index: 1; will-change: transform;
             animation-name: fall; animation-timing-function: linear;
-            mix-blend-mode: overlay; 
         }
-        [data-theme="light"] .rain-icon { mix-blend-mode: multiply; }
 
         @keyframes fall {
             0% { transform: translateY(0) rotate(0deg); opacity: 0; }
-            10% { opacity: 0.6; }
-            100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+            10% { opacity: 1; }
+            100% { transform: translateY(110vh) rotate(360deg); opacity: 0.2; }
         }
     </style>
 </head>
@@ -137,21 +130,18 @@
             <span class="colon">:</span>
             <span class="time-unit" id="s">00</span>
         </div>
-        
-        <div class="date-container">
-            <span id="date-part">LOADING</span>
-            <div class="date-separator"></div>
-            <span id="weekday-part">...</span>
-        </div>
+        <div class="date-display" id="date">LOADING...</div>
     </div>
 
     <script>
-        // --- 1. Emoji 库 (保留你提供的完整列表) ---
+        // --- 1. 扩充后的海量 Emoji 库 ---
+        // 直接使用了你提供的列表，并转换为了数组
         const rawIconString = "'💾', '💿', '🖥️', '🖱️', '⌨️', '📱', '📡', '☁️', '⚡', '❄️', '💧', '🌊', '🌙', '⭐', '🚀', '🛸', '👾', '🎮', '🎵', '☕','😀','😃','😄','😁','😆','😅','😂','🤣','🥲','☺️','😊','😇','🙂','🤪','🤨','🧐','😎','🥸','🤩','🥳','😏','😒','😞','😟','😕','🙁','☹️','😣','😖','😫','😩','🥺','😢','😭','😤','😠','😡','🤬','🤯','😳','🥵','🥶','😱','😨','😓','🤗','🥱','😴','🤤','😪','🥴','🤢','🤮','🤧','😷','🤒','🤕','🤑','🤠','😈','👹','👺','🤡','💩','👻','💀','☠️','👽','👾','🤖','🎃','😺','😸','😿','😾','🖖','👌','🤌','🤞','🫰','🤟','🤘','🤙','👈','👉','👆','🤛','🤜','👃','🧠','🫀','🫁','🦷','🦴','🧑‍🎓','🧑‍🔧','🧑‍🔬','🧑‍🎨','🧑‍🚒','🧑‍✈️','🧑‍🚀','🥷','🦸','🦹','🎅','🤶','🧙','🧚','🧛','🧜','🧝','🧞','🧟','🫂','💆','💇','🚶','🏃','💃','🕺','👯','🧖','🧗','🤺','🏇','⛷️','🏂','🏌️','🏄','🚣','🏊','⛹️','🤾','🦓','🦌','🦬','🐮','','🦇','🐻','🐨','🐼','🦥','🦦','🦨','🦘','🦡','🐾','🦃','🐔','🐓','🐣','🐤','🐥','🐦','🐧','🕊️','🦅','🦆','🦢','🦉','🦤','🪶','🦩','🦚','🦜','🐢','🐍','🐙','🦑','🦐','🦞','🦀','🐡','🐠','🐟','🐬','🍇','🍈','🍉','🥭','🍎','🍏','🍐','🍑','🍒','🍓','🫐',' 🍅','🍔','🍟','🍕','🌭','🥪','🌮',' 🫔','🥙','🧆','🥚','🍳','🥘','🍯','🍼','🥛','☕','🫖','🍵','🍶','🍾','🍷','🍸','🧊','🥢','🍽️','🌎','🌐','🗺️','🗾','🏣','🏥','🏦','🏫','🗼','🗽'";
-        // 性能优化：只执行一次分割操作
+        
+        // 简单清洗数据：去掉单引号、逗号和空格，提取纯 Emoji
         const iconSet = rawIconString.replace(/'/g, '').split(/[, ]+/).filter(i => i.length > 0);
 
-        // --- 2. 主题逻辑 ---
+        // --- 2. 主题切换逻辑 ---
         const themeBtn = document.getElementById('themeBtn');
         const body = document.body;
         const applyTheme = (theme) => {
@@ -169,62 +159,53 @@
             applyTheme(localStorage.getItem('user-theme'));
         }
 
-        // --- 3. 时钟逻辑 (日期格式优化) ---
+        // --- 3. 稳如泰山的时钟逻辑 ---
         function updateClock() {
             const now = new Date();
             const h = now.getHours().toString().padStart(2, '0');
             const m = now.getMinutes().toString().padStart(2, '0');
             const s = now.getSeconds().toString().padStart(2, '0');
             
+            // 分别更新三个独立的盒子，确保没有任何宽度挤压
             document.getElementById('h').innerText = h;
             document.getElementById('m').innerText = m;
             document.getElementById('s').innerText = s;
             
-            // 日期逻辑：YYYY/MM/DD
-            const y = now.getFullYear();
-            const mo = (now.getMonth() + 1).toString().padStart(2, '0');
-            const d = now.getDate().toString().padStart(2, '0');
-            
-            // 星期逻辑：英文全称
-            const weekStr = now.toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase();
-            
-            document.getElementById('date-part').innerText = `${y}/${mo}/${d}`;
-            document.getElementById('weekday-part').innerText = weekStr;
+            const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+            document.getElementById('date').innerText = now.toLocaleDateString('zh-CN', options);
         }
-        // 为了避免刚打开页面时的那一帧空白，立即执行一次
-        updateClock();
         setInterval(updateClock, 1000);
+        updateClock();
 
-        // --- 4. 图标雨逻辑 (性能优化) ---
+        // --- 4. 图标雨逻辑 ---
         function createRainDrop() {
             const icon = document.createElement('div');
             icon.classList.add('rain-icon');
             
-            // 随机选取
+            // 从巨大的库中随机取一个
             icon.innerText = iconSet[Math.floor(Math.random() * iconSet.length)];
             
             const left = Math.random() * 100 + 'vw';
-            const size = Math.random() * 2 + 1 + 'rem';
-            const duration = Math.random() * 5 + 5 + 's';
+            const size = Math.random() * 1.5 + 1 + 'rem';
+            const duration = Math.random() * 5 + 4 + 's';
+            const delay = Math.random() * 2 + 's';
             
             icon.style.left = left;
             icon.style.fontSize = size;
             icon.style.animationDuration = duration;
+            icon.style.animationDelay = delay;
+            icon.style.opacity = Math.random() * 0.4 + 0.2;
             
-            // 性能优化：减少模糊滤镜的使用频率（模糊很耗 GPU）
-            // 只有 30% 的概率出现模糊，既保留了景深，又大幅降低了渲染压力
-            if (Math.random() > 0.7) icon.style.filter = `blur(${Math.random() * 3}px)`;
+            if (Math.random() > 0.8) icon.style.filter = `blur(${Math.random() * 2}px)`;
             
             document.body.appendChild(icon);
-            
-            // 确保动画结束后清理 DOM
-            icon.addEventListener('animationend', () => {
-                icon.remove();
-            });
+            icon.addEventListener('animationend', () => icon.remove());
         }
         
+        // 生成频率（越小雨越大）
         setInterval(createRainDrop, 200);
-        // 预加载一些雨滴，让开场不空旷
+        
+        // 初始化先生成一些
         for(let i=0; i<15; i++) createRainDrop();
 
     </script>
