@@ -6,34 +6,40 @@
     <title>数字绿洲</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
 
     <style>
         :root {
             --bg-main: #050505;
             --bg-gradient: radial-gradient(circle at center, #1a1a1a 0%, #050505 100%);
             --text-primary: #ffffff;
-            --text-secondary: rgba(255, 255, 255, 0.4);
+            --text-secondary: rgba(255, 255, 255, 0.5);
+            --text-tertiary: rgba(255, 255, 255, 0.6);
+            --accent: #00ff88;
         }
 
         [data-theme="light"] {
             --bg-main: #ffffff;
             --bg-gradient: radial-gradient(circle at center, #f0f2f5 0%, #ffffff 100%);
             --text-primary: #000000;
-            --text-secondary: rgba(0, 0, 0, 0.4);
+            --text-secondary: rgba(0, 0, 0, 0.6);
+            --text-tertiary: rgba(0, 0, 0, 0.7);
+            --accent: #0066ff;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
 
         body {
-            background: var(--bg-main);
             background: var(--bg-gradient);
             color: var(--text-primary);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            /* 应用新字体 */
             font-family: 'JetBrains Mono', monospace; 
             overflow: hidden;
             transition: background 0.6s ease, color 0.6s ease;
@@ -42,15 +48,28 @@
         /* 顶部按钮 */
         .top-bar {
             position: fixed;
-            top: 40px; right: 40px; z-index: 100;
+            top: 40px; 
+            right: 40px; 
+            z-index: 100;
         }
+
         .icon-btn {
-            background: none; border: none; font-size: 0.9rem; font-weight: 800;
-            cursor: pointer; color: var(--text-primary); opacity: 0.3;
-            transition: opacity 0.3s; text-transform: uppercase; letter-spacing: 2px;
-            font-family: 'JetBrains Mono', monospace; 
+            background: none; 
+            border: none;
+            font-size: 0.75rem; 
+            font-weight: 600;
+            cursor: pointer; 
+            color: var(--text-secondary); 
+            opacity: 0.3;
+            transition: opacity 0.3s ease;
+            text-transform: uppercase; 
+            letter-spacing: 2px;
+            font-family: 'JetBrains Mono', monospace;
         }
-        .icon-btn:hover { opacity: 1; }
+
+        .icon-btn:hover { 
+            opacity: 1;
+        }
 
         /* 容器 */
         .container {
@@ -59,61 +78,155 @@
             align-items: center;
             z-index: 10;
             position: relative;
+            gap: 40px;
         }
 
-        /* --- 核心防抖布局 --- */
+        /* 时钟样式 */
         .clock-wrapper {
-            display: flex; /* 使用 Flex 布局排列数字 */
+            display: flex;
             justify-content: center;
             align-items: center;
-            font-size: clamp(3rem, 11vw, 8rem); /* 响应式大小 */
-            font-weight: 800; /* 特粗 */
+            font-size: clamp(3rem, 11vw, 8rem);
+            font-weight: 800;
             line-height: 1;
-            margin-bottom: 25px;
-            /* 关键：防止字符间距微小变化 */
-            font-variant-numeric: tabular-nums; 
+            font-variant-numeric: tabular-nums;
+            position: relative;
+            color: var(--text-primary);
+            transition: color 0.6s ease;
         }
 
-        /* 给时分秒每个单元一个固定的“笼子” */
         .time-unit {
-            width: 1.4em; /* 强制宽度：容纳两个数字 */
-            text-align: center; /* 数字在笼子里居中 */
+            width: 1.4em;
+            text-align: center;
             display: inline-block;
         }
 
-        /* 冒号的笼子 */
-            .colon {
+        .colon {
             width: 0.4em;
             text-align: center;
-            color: inherit; /* 强制继承父元素颜色 */
-            opacity: 1;     /* 强制不透明 */
-            padding-bottom: 0.1em; /* 微调垂直对齐 */
+            padding-bottom: 0.1em;
         }
 
-        @keyframes blink {
-            0%, 100% { opacity: 0.6; }
-            50% { opacity: 0.2; }
+        /* 优化后的日期样式 */
+        .date-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
         }
 
-        .date-display {
-            font-size: 0.9rem;
+        .date-main {
+            display: flex;
+            align-items: baseline;
+            gap: 16px;
             font-weight: 600;
-            letter-spacing: 0.4em;
-            text-transform: uppercase;
+        }
+
+        .date-year {
+            font-size: 1.1rem;
             color: var(--text-secondary);
+            letter-spacing: 0.15em;
+            transition: color 0.6s ease;
         }
 
-        /* 图标雨样式 */
+        .date-md {
+            font-size: 1.4rem;
+            color: var(--text-primary);
+            letter-spacing: 0.1em;
+            position: relative;
+            transition: color 0.6s ease;
+        }
+
+        .date-md::before {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            opacity: 0.5;
+            transition: background 0.6s ease;
+        }
+
+        .date-weekday {
+            font-size: 0.9rem;
+            color: var(--text-tertiary);
+            letter-spacing: 0.3em;
+            font-weight: 400;
+            transition: color 0.6s ease;
+        }
+
+        /* 图标雨样式 - 原版效果 + 逆时针旋转 */
         .rain-icon {
-            position: fixed; top: -50px; pointer-events: none; user-select: none;
-            z-index: 1; will-change: transform;
-            animation-name: fall; animation-timing-function: linear;
+            position: fixed; 
+            top: -50px; 
+            pointer-events: none; 
+            user-select: none;
+            z-index: 1; 
+            will-change: transform;
+            animation-name: fall;
+            animation-timing-function: linear;
         }
 
+        /* 顺时针旋转下落（原版） */
         @keyframes fall {
-            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
-            10% { opacity: 1; }
-            100% { transform: translateY(110vh) rotate(360deg); opacity: 0.2; }
+            0% { 
+                transform: translateY(0) rotate(0deg); 
+                opacity: 0; 
+            }
+            10% { 
+                opacity: 1; 
+            }
+            100% { 
+                transform: translateY(110vh) rotate(360deg); 
+                opacity: 0.2; 
+            }
+        }
+
+        /* 逆时针旋转下落（新增） */
+        @keyframes fall-reverse {
+            0% { 
+                transform: translateY(0) rotate(0deg); 
+                opacity: 0; 
+            }
+            10% { 
+                opacity: 1; 
+            }
+            100% { 
+                transform: translateY(110vh) rotate(-360deg); 
+                opacity: 0.2; 
+            }
+        }
+
+        /* 响应式优化 */
+        @media (max-width: 768px) {
+            .top-bar {
+                top: 20px;
+                right: 20px;
+            }
+
+            .container {
+                gap: 30px;
+            }
+
+            .date-main {
+                flex-direction: column;
+                gap: 8px;
+                align-items: center;
+            }
+
+            .date-year {
+                font-size: 0.9rem;
+            }
+
+            .date-md {
+                font-size: 1.2rem;
+            }
+
+            .date-weekday {
+                font-size: 0.8rem;
+            }
         }
     </style>
 </head>
@@ -131,60 +244,112 @@
             <span class="colon">:</span>
             <span class="time-unit" id="s">00</span>
         </div>
-        <div class="date-display" id="date">LOADING...</div>
+        
+        <div class="date-container">
+            <div class="date-main">
+                <span class="date-year" id="dateYear">2024年</span>
+                <span class="date-md" id="dateMD">01月01日</span>
+            </div>
+            <div class="date-weekday" id="dateWeekday">星期一</div>
+        </div>
     </div>
 
     <script>
-        // --- 1. 扩充后的海量 Emoji 库 ---
-        // 直接使用了你提供的列表，并转换为了数组
-        const rawIconString = "'💾', '💿', '🖥️', '🖱️', '⌨️', '📱', '📡', '☁️', '⚡', '❄️', '💧', '🌊', '🌙', '⭐', '🚀', '🛸', '👾', '🎮', '🎵', '☕','😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '🥲', '☺️', '😊', '😇', '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋', '😛', '😝', '😜', '🤪', '🤨', '🧐', '🤓', '😎', '🥸', '🤩', '🥳', '😏', '😒', '😞', '😔', '😟', '😕', '🙁', '☹️', '😣', '😖', '😫', '😩', '🥺', '😢', '😭', '😤', '😠', '😡', '🤬', '🤯', '😳', '🥵', '🥶', '😱', '😨', '😰', '😥', '😓', '🤗', '🤔', '🫣', '🤭', '🫢', '🫡', '🤫', '🫠', '🤥', '😶', '🫥', '😐', '😑', '😬', '🙄', '😯', '😦', '😧', '😮', '😲', '🥱', '😴', '🤤', '😪', '😵', '😵‍💫', '🫨', '🤐', '🥴', '🤢', '🤮', '🤧', '😷', '🤒', '🤕', '🤑', '🤠', '😈', '👿', '👹', '👺', '🤡', '💩', '👻', '💀', '☠️', '👽', '👾', '🤖', '🎃', '😺', '😸', '😹', '😻', '😼', '😽', '🙀', '😿', '😾', '👋', '🤚', '🖐️', '✋', '🖖', '👌', '🤌', '🤏', '✌️', '🤞', '🫰', '🤟', '🤘', '🤙', '👈', '👉', '👆', '🖕', '👇', '☝️', '👍', '👎', '✊', '👊', '🤛', '🤜', '👏', '🙌', '🫶', '👐', '🤲', '🤝', '🙏', '✍️', '💅', '🤳', '💪', '🦾', '🦵', '🦿', '🦶', '👂', '🦻', '👃', '🧠', '🫀', '🫁', '🦷', '🦴', '👀', '👁️', '👅', '👄', '🫦', '👶', '🧒', '👦', '👧', '🧑', '👱', '👨', '🧔', '👩', '👵', '👴', '👲', '👳', '🧕', '👮', '👷', '💂', '🕵️', '🧑‍⚕️', '🧑‍🌾', '🧑‍🍳', '🧑‍🎓', '🧑‍🎤', '🧑‍🏫', '🧑‍🏭', '🧑‍💻', '🧑‍💼', '🧑‍🔧', '🧑‍🔬', '🧑‍🎨', '🧑‍🚒', '🧑‍✈️', '🧑‍🚀', '🧑‍⚖️', '👰', '🤵', '🤴', '👸', '🥷', '🦸', '🦹', '🎅', '🤶', '🧙', '🧚', '🧛', '🧜', '🧝', '🧞', '🧟', '🫂', '💆', '💇', '🚶', '🏃', '💃', '🕺', '👯', '🧖', '🧗', '🤺', '🏇', '⛷️', '🏂', '🏌️', '🏄', '🚣', '🏊', '⛹️', '🏋️', '🚴', '🚵', '🤸', '🤼', '🤽', '🤾', '🤹', '🧘', '🛀', '🛌', '👭', '👫', '👬', '💏', '💑', '👪', '🗣️', '👤', '👥', '🐾', '🐵', '🐒', '🦍', '🦧', '🐶', '🐕', '🦮', '🐩', '🐺', '🦊', '🦝', '🐱', '🐈', '🦁', '🐯', '🐅', '🐆', '🐴', '🐎', '🦄', '🦓', '🦌', '🦬', '🐮', '🐂', '🐃', '🐄', '🐷', '🐖', '🐗', '🐽', '🐏', '🐑', '🐐', '🐪', '🐫', '🦙', '🦒', '🐘', '🦣', '🦏', '🦛', '🐭', '🖱️', '🐹', '🐰', '🐇', '🐿️', '🦫', '🦔', '🦇', '🐻', '🐨', '🐼', '🦥', '🦦', '🦨', '🦘', '🦡', '🦃', '🐔', '🐓', '🐣', '🐤', '🐥', '🐦', '🐧', '🕊️', '🦅', '🦆', '🦢', '🦉', '🦤', '🪶', '🦩', '🦚', '🦜', '🐢', '🐍', '🦎', '🦖', '🦕', '🐙', '🦑', '🦐', '🦞', '🦀', '🐡', '🐠', '🐟', '🐬', '🐳', '🐋', '🦈', '🐊', '🍇', '🍈', '🍉', '🍊', '🍋', '🍌', '🍍', '🥭', '🍎', '🍏', '🍐', '🍑', '🍒', '🍓', '🫐', '🥝', '🍅', '🫒', '🥥', '🥑', '🍆', '🥔', '🥕', '🌽', '🌶️', '🫑', '🥒', '🥬', '🥦', '🧄', '🧅', '🍄', '🥜', '🫘', '🌰', '🍞', '🥐', '🥖', '🫓', '🥨', '🥯', '🥞', '🧇', '🧀', '🍖', '🍗', '🥩', '🥓', '🍔', '🍟', '🍕', '🌭', '🥪', '🌮', '🌯', '🫔', '🥙', '🧆', '🥚', '🍳', '🥘', '🍲', '🥣', '🥗', '🍿', '🧈', '🧂', '🥫', '🍱', '🍘', '🍙', '🍚', '🍛', '🍜', '🍝', '🍠', '🍢', '🍣', '🍤', '🍥', '🥮', '🍡', '🥟', '🥠', '🥡', '🍦', '🍧', '🍨', '🍩', '🍪', '🎂', '🍰', '🧁', '🥧', '🍫', '🍬', '🍭', '🍮', '🍯', '🍼', '🥛', '☕', '🫖', '🍵', '🍶', '🍾', '🍷', '🍸', '🍹', '🍺', '🍻', '🥂', '🥃', '🥤', '🧋', '🧃', '🧉', '🧊', '🥢', '🍽️', '🍴', '🥄', '🔪', '🏺', '🌍', '🌎', '🌏', '🌐', '🗺️', '🗾', '🧭', '🏔️', '⛰️', '🌋', '🗻', '🏕️', '🏖️', '🏜️', '🏝️', '🏞️', '🏟️', '🏛️', '🏗️', '🧱', '🏘️', '🏚️', '🏠', '🏡', '🏢', '🏣', '🏤', '🏥', '🏦', '🏨', '🏩', '🏪', '🏫', '🏬', '🏭', '🏯', '🏰', '💒', '🗼', '🗽', '⛪', '🕌', '🛕', '🕍', '⛩️', '🕋', '⛲', '⛺', '🌁', '🌃', '🏙️', '🌅', '🌇', '🌆', '🌉', '♨️', '🎠', '🎡', '🎢', '💈', '🎪', '🚂', '🚃', '🚄', '🚅', '🚆', '🚇', '🚈', '🚉', '🚊', '🚝', '🚞', '🚋', '🚌', '🚍', '🚎', '🚐', '🚑', '🚒'";
-        
-        // 简单清洗数据：去掉单引号、逗号和空格，提取纯 Emoji
-        const iconSet = rawIconString.replace(/'/g, '').split(/[, ]+/).filter(i => i.length > 0);
+        // 完整的 Emoji 图标库
+        const iconSet = [
+            '💾', '💿', '🖥️', '🖱️', '⌨️', '📱', '📡', '☁️', '⚡', '❄️', '💧', '🌊', '🌙', '⭐', '🚀', '🛸', '👾', '🎮', '🎵', '☕',
+            '😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '🥲', '☺️', '😊', '😇', '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', 
+            '😙', '😚', '😋', '😛', '😝', '😜', '🤪', '🤨', '🧐', '🤓', '😎', '🥸', '🤩', '🥳', '😏', '😒', '😞', '😔', '😟', '😕', 
+            '🙁', '☹️', '😣', '😖', '😫', '😩', '🥺', '😢', '😭', '😤', '😠', '😡', '🤬', '🤯', '😳', '🥵', '🥶', '😱', '😨', '😰', 
+            '😥', '😓', '🤗', '🤔', '🫣', '🤭', '🫢', '🫡', '🤫', '🫠', '🤥', '😶', '🫥', '😐', '😑', '😬', '🙄', '😯', '😦', '😧', 
+            '😮', '😲', '🥱', '😴', '🤤', '😪', '😵', '😵‍💫', '🫨', '🤐', '🥴', '🤢', '🤮', '🤧', '😷', '🤒', '🤕', '🤑', '🤠', '😈', 
+            '👿', '👹', '👺', '🤡', '💩', '👻', '💀', '☠️', '👽', '👾', '🤖', '🎃', '😺', '😸', '😹', '😻', '😼', '😽', '🙀', '😿', 
+            '😾', '👋', '🤚', '🖐️', '✋', '🖖', '👌', '🤌', '🤏', '✌️', '🤞', '🫰', '🤟', '🤘', '🤙', '👈', '👉', '👆', '🖕', '👇', 
+            '☝️', '👍', '👎', '✊', '👊', '🤛', '🤜', '👏', '🙌', '🫶', '👐', '🤲', '🤝', '🙏', '✍️', '💅', '🤳', '💪', '🦾', '🦵', 
+            '🦿', '🦶', '👂', '🦻', '👃', '🧠', '🫀', '🫁', '🦷', '🦴', '👀', '👁️', '👅', '👄', '🫦', '👶', '🧒', '👦', '👧', '🧑', 
+            '👱', '👨', '🧔', '👩', '👵', '👴', '👲', '👳', '🧕', '👮', '👷', '💂', '🕵️', '🧑‍⚕️', '🧑‍🌾', '🧑‍🍳', '🧑‍🎓', '🧑‍🎤', '🧑‍🏫', '🧑‍🏭', 
+            '🧑‍💻', '🧑‍💼', '🧑‍🔧', '🧑‍🔬', '🧑‍🎨', '🧑‍🚒', '🧑‍✈️', '🧑‍🚀', '🧑‍⚖️', '👰', '🤵', '🤴', '👸', '🥷', '🦸', '🦹', '🎅', '🤶', '🧙', 
+            '🧚', '🧛', '🧜', '🧝', '🧞', '🧟', '🫂', '💆', '💇', '🚶', '🏃', '💃', '🕺', '👯', '🧖', '🧗', '🤺', '🏇', '⛷️', '🏂', 
+            '🏌️', '🏄', '🚣', '🏊', '⛹️', '🏋️', '🚴', '🚵', '🤸', '🤼', '🤽', '🤾', '🤹', '🧘', '🛀', '🛌', '👭', '👫', '👬', '💏', 
+            '💑', '👪', '🗣️', '👤', '👥', '🐾', '🐵', '🐒', '🦍', '🦧', '🐶', '🐕', '🦮', '🐩', '🐺', '🦊', '🦝', '🐱', '🐈', '🦁', 
+            '🐯', '🐅', '🐆', '🐴', '🐎', '🦄', '🦓', '🦌', '🦬', '🐮', '🐂', '🐃', '🐄', '🐷', '🐖', '🐗', '🐽', '🐏', '🐑', '🐐', 
+            '🐪', '🐫', '🦙', '🦒', '🐘', '🦣', '🦏', '🦛', '🐭', '🐹', '🐰', '🐇', '🐿️', '🦫', '🦔', '🦇', '🐻', '🐨', '🐼', '🦥', 
+            '🦦', '🦨', '🦘', '🦡', '🦃', '🐔', '🐓', '🐣', '🐤', '🐥', '🐦', '🐧', '🕊️', '🦅', '🦆', '🦢', '🦉', '🦤', '🪶', '🦩', 
+            '🦚', '🦜', '🐢', '🐍', '🦎', '🦖', '🦕', '🐙', '🦑', '🦐', '🦞', '🦀', '🐡', '🐠', '🐟', '🐬', '🐳', '🐋', '🦈', '🐊', 
+            '🍇', '🍈', '🍉', '🍊', '🍋', '🍌', '🍍', '🥭', '🍎', '🍏', '🍐', '🍑', '🍒', '🍓', '🫐', '🥝', '🍅', '🫒', '🥥', '🥑', 
+            '🍆', '🥔', '🥕', '🌽', '🌶️', '🫑', '🥒', '🥬', '🥦', '🧄', '🧅', '🍄', '🥜', '🫘', '🌰', '🍞', '🥐', '🥖', '🫓', '🥨', 
+            '🥯', '🥞', '🧇', '🧀', '🍖', '🍗', '🥩', '🥓', '🍔', '🍟', '🍕', '🌭', '🥪', '🌮', '🌯', '🫔', '🥙', '🧆', '🥚', '🍳', 
+            '🥘', '🍲', '🥣', '🥗', '🍿', '🧈', '🧂', '🥫', '🍱', '🍘', '🍙', '🍚', '🍛', '🍜', '🍝', '🍠', '🍢', '🍣', '🍤', '🍥', 
+            '🥮', '🍡', '🥟', '🥠', '🥡', '🍦', '🍧', '🍨', '🍩', '🍪', '🎂', '🍰', '🧁', '🥧', '🍫', '🍬', '🍭', '🍮', '🍯', '🍼', 
+            '🥛', '☕', '🫖', '🍵', '🍶', '🍾', '🍷', '🍸', '🍹', '🍺', '🍻', '🥂', '🥃', '🥤', '🧋', '🧃', '🧉', '🧊', '🥢', '🍽️', 
+            '🍴', '🥄', '🔪', '🏺', '🌍', '🌎', '🌏', '🌐', '🗺️', '🗾', '🧭', '🏔️', '⛰️', '🌋', '🗻', '🏕️', '🏖️', '🏜️', '🏝️', '🏞️', 
+            '🏟️', '🏛️', '🏗️', '🧱', '🏘️', '🏚️', '🏠', '🏡', '🏢', '🏣', '🏤', '🏥', '🏦', '🏨', '🏩', '🏪', '🏫', '🏬', '🏭', '🏯', 
+            '🏰', '💒', '🗼', '🗽', '⛪', '🕌', '🛕', '🕍', '⛩️', '🕋', '⛲', '⛺', '🌁', '🌃', '🏙️', '🌅', '🌇', '🌆', '🌉', '♨️', 
+            '🎠', '🎡', '🎢', '💈', '🎪', '🚂', '🚃', '🚄', '🚅', '🚆', '🚇', '🚈', '🚉', '🚊', '🚝', '🚞', '🚋', '🚌', '🚍', '🚎', 
+            '🚐', '🚑', '🚒'
+        ];
 
-        // --- 2. 主题切换逻辑 ---
+        // 主题切换
         const themeBtn = document.getElementById('themeBtn');
         const body = document.body;
+
         const applyTheme = (theme) => {
             body.setAttribute('data-theme', theme);
-            themeBtn.innerText = theme.toUpperCase();
+            themeBtn.textContent = theme.toUpperCase();
             localStorage.setItem('user-theme', theme);
         };
+
         themeBtn.addEventListener('click', () => {
-            const newTheme = body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
             applyTheme(newTheme);
         });
-        if (!localStorage.getItem('user-theme') && window.matchMedia('(prefers-color-scheme: light)').matches) {
-            applyTheme('light');
-        } else if (localStorage.getItem('user-theme')) {
-            applyTheme(localStorage.getItem('user-theme'));
-        }
 
-        // --- 3. 稳如泰山的时钟逻辑 ---
+        // 初始化主题
+        const savedTheme = localStorage.getItem('user-theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        applyTheme(savedTheme || (prefersDark ? 'dark' : 'light'));
+
+        // 时钟更新
+        const weekdayMap = {
+            0: '星期日',
+            1: '星期一',
+            2: '星期二',
+            3: '星期三',
+            4: '星期四',
+            5: '星期五',
+            6: '星期六'
+        };
+
         function updateClock() {
             const now = new Date();
-            const h = now.getHours().toString().padStart(2, '0');
-            const m = now.getMinutes().toString().padStart(2, '0');
-            const s = now.getSeconds().toString().padStart(2, '0');
             
-            // 分别更新三个独立的盒子，确保没有任何宽度挤压
-            document.getElementById('h').innerText = h;
-            document.getElementById('m').innerText = m;
-            document.getElementById('s').innerText = s;
+            // 更新时间
+            document.getElementById('h').textContent = String(now.getHours()).padStart(2, '0');
+            document.getElementById('m').textContent = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('s').textContent = String(now.getSeconds()).padStart(2, '0');
             
-            const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
-            document.getElementById('date').innerText = now.toLocaleDateString('zh-CN', options);
+            // 更新日期
+            document.getElementById('dateYear').textContent = now.getFullYear() + '年';
+            document.getElementById('dateMD').textContent = 
+                `${String(now.getMonth() + 1).padStart(2, '0')}月${String(now.getDate()).padStart(2, '0')}日`;
+            document.getElementById('dateWeekday').textContent = weekdayMap[now.getDay()];
         }
+
         setInterval(updateClock, 1000);
         updateClock();
 
-        // --- 4. 图标雨逻辑 ---
+        // 图标雨 - 原版效果 + 逆时针旋转
         function createRainDrop() {
             const icon = document.createElement('div');
             icon.classList.add('rain-icon');
+            icon.textContent = iconSet[Math.floor(Math.random() * iconSet.length)];
             
-            // 从巨大的库中随机取一个
-            icon.innerText = iconSet[Math.floor(Math.random() * iconSet.length)];
+            // 随机选择顺时针或逆时针旋转
+            const isReverse = Math.random() > 0.5;
+            if (isReverse) {
+                icon.style.animationName = 'fall-reverse';
+            }
             
             const left = Math.random() * 100 + 'vw';
             const size = Math.random() * 1.5 + 1 + 'rem';
@@ -197,20 +362,20 @@
             icon.style.animationDelay = delay;
             icon.style.opacity = Math.random() * 0.4 + 0.2;
             
-            if (Math.random() > 0.8) icon.style.filter = `blur(${Math.random() * 2}px)`;
+            if (Math.random() > 0.8) {
+                icon.style.filter = `blur(${Math.random() * 2}px)`;
+            }
             
             document.body.appendChild(icon);
             icon.addEventListener('animationend', () => icon.remove());
         }
-        
-        // 生成频率（越小雨越大）
-        setInterval(createRainDrop, 200);
-        
-        // 初始化先生成一些
-        for(let i=0; i<15; i++) createRainDrop();
 
+        // 初始化图标雨
+        for (let i = 0; i < 15; i++) {
+            createRainDrop();
+        }
+        
+        setInterval(createRainDrop, 200);
     </script>
 </body>
 </html>
-
-
